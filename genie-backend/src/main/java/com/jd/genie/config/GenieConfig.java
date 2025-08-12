@@ -252,5 +252,55 @@ public class GenieConfig {
     @Value("${autobots.autoagent.tool.task_complete_desc:当前task完成，请将当前task标记为 completed}")
     private String taskCompleteDesc;
 
+    @Value("${autobots.autoagent.default_model_name:gpt-4.1}")
+    private String defaultModelName;
+
+    // 动态模型切换支持
+    private volatile String currentModelName;
+
+    /**
+     * 获取当前使用的模型名称
+     */
+    public String getCurrentModelName() {
+        return currentModelName != null ? currentModelName : defaultModelName;
+    }
+
+    /**
+     * 设置当前使用的模型名称
+     */
+    public void setCurrentModelName(String modelName) {
+        this.currentModelName = modelName;
+    }
+
+    /**
+     * 获取所有可用的LLM模型
+     */
+    public Map<String, LLMSettings> getAllAvailableModels() {
+        return llmSettingsMap != null ? llmSettingsMap : new HashMap<>();
+    }
+
+    /**
+     * 验证模型是否存在
+     */
+    public boolean isModelAvailable(String modelName) {
+        return llmSettingsMap != null && llmSettingsMap.containsKey(modelName);
+    }
+
+    /**
+     * 获取指定模型的配置
+     */
+    public LLMSettings getModelSettings(String modelName) {
+        if (llmSettingsMap == null) {
+            return null;
+        }
+        return llmSettingsMap.get(modelName);
+    }
+
+    /**
+     * 获取默认模型名称
+     */
+    public String getDefaultModelName() {
+        return defaultModelName;
+    }
 
 }

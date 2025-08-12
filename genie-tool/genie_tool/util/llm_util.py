@@ -38,15 +38,34 @@ async def ask_llm(
             else:
                 message["content"] = json.loads(
                     SensitiveWordsReplace.replace(json.dumps(message["content"], ensure_ascii=False)))
-    response = await acompletion(
-        messages=messages,
-        model=model,
-        temperature=temperature,
-        top_p=top_p,
-        stream=stream,
-        extra_headers=extra_headers,
+    
+    # 设置LiteLLM调用参数
+    completion_kwargs = {
+        "messages": messages,
+        "model": model,
+        "stream": stream,
         **kwargs
-    )
+    }
+    
+    # 添加可选参数
+    if temperature is not None:
+        completion_kwargs["temperature"] = temperature
+    if top_p is not None:
+        completion_kwargs["top_p"] = top_p
+    if extra_headers is not None:
+        completion_kwargs["extra_headers"] = extra_headers
+    
+    # 设置API配置 - LiteLLM会自动使用环境变量
+    if "glm" in model.lower() or model in ["glm-4", "glm-3-turbo"]:
+        # 对于智谱AI模型，确保使用正确的环境变量
+        api_key = os.getenv("OPENAI_API_KEY")
+        base_url = os.getenv("OPENAI_BASE_URL")
+        if api_key:
+            completion_kwargs["api_key"] = api_key
+        if base_url:
+            completion_kwargs["base_url"] = base_url
+    
+    response = await acompletion(**completion_kwargs)
     async with AsyncTimer(key=f"exec ask_llm"):
         if stream:
             async for chunk in response:

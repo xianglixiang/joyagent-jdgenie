@@ -1,7 +1,8 @@
 import { memo, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { ConfigProvider, message } from 'antd';
-import { ConstantProvider } from '@/hooks';
+import { ConstantProvider, SessionProvider } from '@/hooks';
+import { Sidebar, LLMSelector } from '@/components';
 import * as constants from "@/utils/constants";
 import { setMessage } from '@/utils';
 
@@ -17,9 +18,46 @@ const Layout: GenieType.FC = memo(() => {
   return (
     <ConfigProvider theme={{ token: { colorPrimary: '#4040FFB2' } }}>
       {messageContent}
-      {/* 暂时只有静态的 */}
       <ConstantProvider value={constants}>
-        <Outlet />
+        <SessionProvider>
+          <div className="h-screen flex bg-gray-50 overflow-hidden">
+            {/* 左侧边栏 */}
+            <Sidebar />
+            
+            {/* 右侧主内容区域 */}
+            <div className="flex-1 flex flex-col h-screen">
+              {/* Header */}
+              <header className="h-64 bg-white border-b border-gray-200 flex items-center justify-between px-24 flex-shrink-0">
+                {/* Left side - LLM Selector */}
+                <div className="flex items-center">
+                  <LLMSelector />
+                </div>
+                
+                {/* Right side - can add more header content here */}
+                <div className="flex items-center">
+                  {/* Future: user menu, settings, etc. */}
+                </div>
+              </header>
+              
+              {/* Main Content */}
+              <main 
+                className="flex-1 overflow-y-auto bg-white" 
+                style={{ 
+                  height: 'calc(100vh - 256px - 160px)'
+                }}
+              >
+                <Outlet />
+              </main>
+              
+              {/* Footer */}
+              <footer className="h-40 bg-white border-t border-gray-200 flex items-center justify-center px-24 flex-shrink-0">
+                <span className="text-12 text-gray-500">
+                  © 2025 上海银行. All rights reserved.
+                </span>
+              </footer>
+            </div>
+          </div>
+        </SessionProvider>
       </ConstantProvider>
     </ConfigProvider>
   );

@@ -14,10 +14,11 @@ import { Modal } from "antd";
 type Props = {
   inputInfo: CHAT.TInputInfo;
   product?: CHAT.Product;
+  sessionId?: string;
 };
 
 const ChatView: GenieType.FC<Props> = (props) => {
-  const { inputInfo: inputInfoProp, product  } = props;
+  const { inputInfo: inputInfoProp, product, sessionId: propSessionId } = props;
 
   const [chatTitle, setChatTitle] = useState("");
   const [taskList, setTaskList] = useState<MESSAGE.Task[]>([]);
@@ -28,7 +29,7 @@ const ChatView: GenieType.FC<Props> = (props) => {
   const [loading, setLoading] = useState(false);
   const chatRef = useRef<HTMLInputElement>(null);
   const actionViewRef = ActionView.useActionView();
-  const sessionId = useMemo(() => getSessionId(), []);
+  const sessionId = useMemo(() => propSessionId || getSessionId(), [propSessionId]);
   const [modal, contextHolder] = Modal.useModal();
 
   const combineCurrentChat = (

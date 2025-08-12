@@ -1,0 +1,27 @@
+/* LLM选择器样式 */
+.llm-selector-dropdown .ant-select-item {
+  padding: 8px 12px;
+}
+
+.llm-selector-dropdown .ant-select-item-option-content {
+  width: 100%;
+}
+
+.llm-selector-dropdown .ant-select-item-option-selected {
+  background-color: #f0f8ff;
+}
+
+.llm-selector-dropdown .ant-select-item:hover {
+  background-color: #f5f5f5;
+}
+
+/* 当前模型标识 */
+.current-model-badge {
+  color: #1890ff;
+  font-size: 11px;
+  font-weight: 500;
+  background: #e6f7ff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #91d5ff;
+}

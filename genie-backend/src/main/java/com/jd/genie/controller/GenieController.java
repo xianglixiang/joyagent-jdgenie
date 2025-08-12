@@ -17,6 +17,8 @@ import com.jd.genie.agent.util.ThreadUtil;
 import com.jd.genie.config.GenieConfig;
 import com.jd.genie.model.req.AgentRequest;
 import com.jd.genie.model.req.GptQueryReq;
+import com.jd.genie.model.req.LLMSwitchRequest;
+import com.jd.genie.model.dto.LLMModelInfo;
 import com.jd.genie.service.AgentHandlerService;
 import com.jd.genie.service.IGptProcessService;
 import com.jd.genie.service.impl.AgentHandlerFactory;
@@ -25,10 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.UnsupportedEncodingException;
@@ -266,6 +265,147 @@ public class GenieController {
     @RequestMapping(value = "/web/api/v1/gpt/queryAgentStreamIncr", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter queryAgentStreamIncr(@RequestBody GptQueryReq params) {
         return gptProcessService.queryMultiAgentIncrStream(params);
+    }
+
+    /**
+     * 获取所有可用的LLM模型列表
+     * @return 模型列表
+     */
+    @GetMapping("/api/llm/models")
+    public ResponseEntity<List<LLMModelInfo>> getAllModels() {
+        try {
+            Map<String, com.jd.genie.agent.llm.LLMSettings> allModels = genieConfig.getAllAvailableModels();
+            String currentModel = genieConfig.getCurrentModelName();
+            
+            List<LLMModelInfo> modelInfoList = new ArrayList<>();
+            
+            // 添加默认模型（如果不在settings中）
+            if (!allModels.containsKey(currentModel)) {
+                modelInfoList.add(LLMModelInfo.builder()
+                        .modelKey(currentModel)
+                        .displayName(getDisplayName(currentModel))
+                        .description("默认模型")
+                        .isCurrent(true)
+                        .available(true)
+                        .modelType(getModelType(currentModel))
+                        .build());
+            }
+            
+            // 添加配置中的模型
+            for (Map.Entry<String, com.jd.genie.agent.llm.LLMSettings> entry : allModels.entrySet()) {
+                String modelKey = entry.getKey();
+                com.jd.genie.agent.llm.LLMSettings settings = entry.getValue();
+                
+                modelInfoList.add(LLMModelInfo.builder()
+                        .modelKey(modelKey)
+                        .displayName(getDisplayName(modelKey))
+                        .description("支持" + settings.getMaxTokens() + "个token")
+                        .isCurrent(modelKey.equals(currentModel))
+                        .available(true)
+                        .maxTokens(settings.getMaxTokens())
+                        .modelType(getModelType(modelKey))
+                        .build());
+            }
+            
+            return ResponseEntity.ok(modelInfoList);
+        } catch (Exception e) {
+            log.error("获取LLM模型列表失败", e);
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+    }
+
+    /**
+     * 获取当前使用的LLM模型
+     * @return 当前模型信息
+     */
+    @GetMapping("/api/llm/current")
+    public ResponseEntity<Map<String, String>> getCurrentModel() {
+        try {
+            String currentModel = genieConfig.getCurrentModelName();
+            Map<String, String> result = new HashMap<>();
+            result.put("currentModel", currentModel);
+            result.put("displayName", getDisplayName(currentModel));
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("获取当前LLM模型失败", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * 切换LLM模型
+     * @param request 切换请求
+     * @return 切换结果
+     */
+    @PostMapping("/api/llm/switch")
+    public ResponseEntity<Map<String, Object>> switchModel(@RequestBody LLMSwitchRequest request) {
+        try {
+            String modelName = request.getModelName();
+            if (StringUtils.isEmpty(modelName)) {
+                Map<String, Object> errorResult = new HashMap<>();
+                errorResult.put("success", false);
+                errorResult.put("message", "模型名称不能为空");
+                return ResponseEntity.badRequest().body(errorResult);
+            }
+
+            // 验证模型是否存在
+            if (!genieConfig.isModelAvailable(modelName) && !modelName.equals(genieConfig.getDefaultModelName())) {
+                Map<String, Object> errorResult = new HashMap<>();
+                errorResult.put("success", false);
+                errorResult.put("message", "指定的模型不存在或不可用");
+                return ResponseEntity.badRequest().body(errorResult);
+            }
+
+            // 切换模型
+            genieConfig.setCurrentModelName(modelName);
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "模型切换成功");
+            result.put("currentModel", modelName);
+            result.put("displayName", getDisplayName(modelName));
+            
+            log.info("LLM模型已切换到: {}", modelName);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("切换LLM模型失败", e);
+            Map<String, Object> errorResult = new HashMap<>();
+            errorResult.put("success", false);
+            errorResult.put("message", "切换失败: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(errorResult);
+        }
+    }
+
+    /**
+     * 根据模型key获取显示名称
+     */
+    private String getDisplayName(String modelKey) {
+        if (modelKey.contains("gpt-4")) {
+            return "GPT-4";
+        } else if (modelKey.contains("gpt-3.5")) {
+            return "GPT-3.5";
+        } else if (modelKey.contains("claude")) {
+            return "Claude";
+        } else if (modelKey.contains("gemini")) {
+            return "Gemini";
+        } else {
+            return modelKey.toUpperCase();
+        }
+    }
+
+    /**
+     * 根据模型key获取模型类型
+     */
+    private String getModelType(String modelKey) {
+        if (modelKey.contains("gpt")) {
+            return "OpenAI GPT";
+        } else if (modelKey.contains("claude")) {
+            return "Anthropic Claude";
+        } else if (modelKey.contains("gemini")) {
+            return "Google Gemini";
+        } else {
+            return "Other";
+        }
     }
 
 }

@@ -1,14 +1,26 @@
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import GeneralInput from "@/components/GeneralInput";
 import Slogn from "@/components/Slogn";
 import ChatView from "@/components/ChatView";
 import { productList, defaultProduct } from "@/utils/constants";
 import { Image } from "antd";
 import { demoList } from "@/utils/constants";
+import { useSession } from "@/hooks";
 
 type HomeProps = Record<string, never>;
 
 const Home: GenieType.FC<HomeProps> = memo(() => {
+  const { sessionId } = useParams<{ sessionId?: string }>();
+  const navigate = useNavigate();
+  const { 
+    createSession, 
+    setCurrentSession, 
+    hasSession, 
+    getSession, 
+    updateSession 
+  } = useSession();
+  
   const [inputInfo, setInputInfo] = useState<CHAT.TInputInfo>({
     message: "",
     deepThink: false,
@@ -16,9 +28,37 @@ const Home: GenieType.FC<HomeProps> = memo(() => {
   const [product, setProduct] = useState(defaultProduct);
   const [videoModalOpen, setVideoModalOpen] = useState();
 
+  // 验证并设置当前会话
+  useEffect(() => {
+    if (sessionId) {
+      if (hasSession(sessionId)) {
+        setCurrentSession(sessionId);
+      } else {
+        // 如果会话不存在，重定向到首页
+        navigate('/', { replace: true });
+      }
+    }
+  }, [sessionId, hasSession, setCurrentSession, navigate]);
+
   const changeInputInfo = useCallback((info: CHAT.TInputInfo) => {
+    let currentSessionId = sessionId;
+    
+    // 如果没有会话ID，创建新会话
+    if (!currentSessionId) {
+      currentSessionId = createSession(info.message || '新对话');
+      navigate(`/${currentSessionId}`, { replace: true });
+    }
+    
     setInputInfo(info);
-  }, []);
+    
+    // 更新会话信息
+    if (currentSessionId) {
+      updateSession(currentSessionId, {
+        title: info.message || '新对话',
+        lastMessage: info.message,
+      });
+    }
+  }, [sessionId, createSession, navigate, updateSession]);
 
   const CaseCard = ({ title, description, tag, image, url, videoUrl }: any) => {
     return (
@@ -71,9 +111,14 @@ const Home: GenieType.FC<HomeProps> = memo(() => {
   };
 
   const renderContent = () => {
+    // 如果有会话ID且有输入信息，或者当前有会话但没有输入信息
+    if (sessionId && (inputInfo.message.length > 0 || getSession(sessionId))) {
+      return <ChatView inputInfo={inputInfo} product={product} sessionId={sessionId} />;
+    }
+    
     if (inputInfo.message.length === 0) {
       return (
-        <div className="pt-[120px] flex flex-col items-center">
+        <div className="h-full flex flex-col items-center justify-center px-24">
           <Slogn />
           <div className="w-640 rounded-xl shadow-[0_18px_39px_0_rgba(198,202,240,0.1)]">
             <GeneralInput
@@ -97,10 +142,10 @@ const Home: GenieType.FC<HomeProps> = memo(() => {
               </div>
             ))}
           </div>
-          <div className="mt-80 mb-120">
+          <div className="mt-40 mb-40">
             <div className="text-center">
               <h2 className="text-2xl font-bold mb-2">优秀案例</h2>
-              <p className="text-gray-500">和 Genie 一起提升工作效率</p>
+              <p className="text-gray-500">和 海小睿 一起提升工作效率</p>
             </div>
             <div className="flex gap-16 mt-24">
               {demoList.map((demo, i) => (
@@ -111,11 +156,11 @@ const Home: GenieType.FC<HomeProps> = memo(() => {
         </div>
       );
     }
-    return <ChatView inputInfo={inputInfo} product={product} />;
+    return <ChatView inputInfo={inputInfo} product={product} sessionId={sessionId} />;
   };
 
   return (
-    <div className="h-full flex flex-col items-center ">
+    <div className="h-full overflow-auto bg-white">
       {renderContent()}
     </div>
   );

@@ -1,0 +1,438 @@
+# =============================================
+# JoyAgent-JDGenie .gitignore
+# 多服务微服务架构项目忽略文件配置
+# =============================================
+
+# ===================
+# 通用系统文件
+# ===================
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# Windows
+desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+
+# ===================
+# IDE 和编辑器
+# ===================
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.idea_modules/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Eclipse
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# ===================
+# Java (genie-backend)
+# ===================
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle (if used)
+.gradle/
+build/
+
+# Java compiled files
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Spring Boot
+spring-boot-*.log
+application-*.log
+
+# Java package files
+*.jar
+*.war
+*.nar
+*.ear
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Maven repository cache
+**/D:\mvn_repo/
+D:\\mvn_repo/
+
+# ===================
+# Python (genie-tool)
+# ===================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# UV (Python package manager)
+.uv/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ===================
+# Node.js (ui)
+# ===================
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vite
+dist/
+.vite/
+
+# ===================
+# 数据库文件
+# ===================
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+autobots.db
+genie_h2_db.db*
+
+# H2 Database
+*.h2.db
+*.trace.db
+*.lock.db
+
+# MySQL dumps
+*.sql
+
+# Database backup files
+*.backup
+*.dump
+
+# ===================
+# 项目特定文件
+# ===================
+# 日志文件
+*.log
+logs/
+genie-backend_startup.log
+
+# 临时和缓存文件
+file_db_dir/
+temp/
+tmp/
+cache/
+
+# 配置文件（包含敏感信息）
+.env
+.env.*
+!.env_template
+!.env.example
+
+# 上传文件目录
+uploads/
+files/
+
+# 测试相关
+test-results/
+test-llm-api.html
+
+# 报告输出
+reports/
+*.report
+
+# Maven settings with sensitive info
+aliyun-settings.xml
+settings.xml
+
+# ===================
+# 部署和运行时
+# ===================
+# Docker
+Dockerfile.local
+docker-compose.override.yml
+.dockerignore
+
+# Kubernetes
+*.yaml.local
+*.yml.local
+
+# 进程文件
+*.pid
+
+# ===================
+# 开发工具
+# ===================
+# Claude Code
+.claude/
+
+# Git worktrees (本地开发)
+.worktree/
+
+# 性能分析
+*.prof
+
+# 调试文件
+debug.log
+*.debug
+
+# ===================
+# 安全相关
+# ===================
+# 密钥文件
+*.key
+*.pem
+*.p12
+*.jks
+*.keystore
+*.truststore
+
+# 证书
+*.crt
+*.cert
+
+# API 密钥和配置
+api-keys.json
+secrets.json
+credentials.json
+
+# ===================
+# 其他
+# ===================
+# 压缩文件
+*.7z
+*.dmg
+*.gz
+*.iso
+*.tar
+*.zip
+
+# 备份文件
+*.bak
+*.backup
+*.old
+*.orig
+
+# 临时文件
+*tmp*
+*.temp

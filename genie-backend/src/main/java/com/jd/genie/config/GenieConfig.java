@@ -4,12 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.jd.genie.agent.llm.LLMSettings;
+import com.jd.genie.util.PromptLoader;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
+import jakarta.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,54 +20,22 @@ import java.util.Map;
 @Configuration
 public class GenieConfig {
 
+    @Autowired
+    private PromptLoader promptLoader;
+
     private Map<String, String> plannerSystemPromptMap = new HashMap<>();
-    @Value("${autobots.autoagent.planner.system_prompt:{}}")
-    public void setPlannerSystemPromptMap(String list) {
-        plannerSystemPromptMap = JSONObject.parseObject(list, new TypeReference<Map<String, String>>() {
-        });
-    }
 
     private Map<String, String> plannerNextStepPromptMap = new HashMap<>();
-    @Value("${autobots.autoagent.planner.next_step_prompt:{}}")
-    public void setPlannerNextStepPromptMap(String list) {
-        plannerNextStepPromptMap = JSONObject.parseObject(list, new TypeReference<Map<String, String>>() {
-        });
-    }
 
     private Map<String, String> executorSystemPromptMap = new HashMap<>();
-    @Value("${autobots.autoagent.executor.system_prompt:{}}")
-    public void setExecutorSystemPromptMap(String list) {
-        executorSystemPromptMap = JSONObject.parseObject(list, new TypeReference<Map<String, String>>() {
-        });
-    }
 
     private Map<String, String> executorNextStepPromptMap = new HashMap<>();
-    @Value("${autobots.autoagent.executor.next_step_prompt:{}}")
-    public void setExecutorNextStepPromptMap(String list) {
-        executorNextStepPromptMap = JSONObject.parseObject(list, new TypeReference<Map<String, String>>() {
-        });
-    }
 
     private Map<String, String> executorSopPromptMap = new HashMap<>();
-    @Value("${autobots.autoagent.executor.sop_prompt:{}}")
-    public void setExecutorSopPromptMap(String list) {
-        executorSopPromptMap = JSONObject.parseObject(list, new TypeReference<Map<String, String>>() {
-        });
-    }
 
     private Map<String, String> reactSystemPromptMap = new HashMap<>();
-    @Value("${autobots.autoagent.react.system_prompt:{}}")
-    public void setReactSystemPromptMap(String list) {
-        reactSystemPromptMap = JSONObject.parseObject(list, new TypeReference<Map<String, String>>() {
-        });
-    }
 
     private Map<String, String> reactNextStepPromptMap = new HashMap<>();
-    @Value("${autobots.autoagent.react.next_step_prompt:{}}")
-    public void setReactNextStepPromptMap(String list) {
-        reactNextStepPromptMap = JSONObject.parseObject(list, new TypeReference<Map<String, String>>() {
-        });
-    }
 
     @Value("${autobots.autoagent.planner.model_name:gpt-4o-0806}")
     private String plannerModelName;
@@ -243,11 +213,74 @@ public class GenieConfig {
 	@Value("${autobots.multiagent.sseClient.connectTimeout:1800}")
 	private Integer sseClientConnectTimeout;
 
-	@Value("${autobots.autoagent.genie_sop_prompt:}")
 	private String genieSopPrompt;
 
-    @Value("${autobots.autoagent.genie_base_prompt:}")
     private String genieBasePrompt;
+
+    /**
+     * 初始化prompt配置，从外部文件加载
+     */
+    @PostConstruct
+    public void initPrompts() {
+        try {
+            // 加载各个agent的system prompt
+            plannerSystemPromptMap = loadPromptWithDefault("planner/system.md");
+            plannerNextStepPromptMap = loadPromptWithDefault("planner/next_step.md");
+            
+            executorSystemPromptMap = loadPromptWithDefault("executor/system.md");
+            executorNextStepPromptMap = loadPromptWithDefault("executor/next_step.md");
+            
+            reactSystemPromptMap = loadPromptWithDefault("react/system.md");
+            reactNextStepPromptMap = loadPromptWithDefault("react/next_step.md");
+            
+            // 加载Genie基础prompt
+            genieSopPrompt = promptLoader.loadPrompt("genie_sop.md");
+            genieBasePrompt = promptLoader.loadPrompt("genie_base.md");
+            
+            log.info("Successfully loaded all prompt configurations from external files");
+        } catch (Exception e) {
+            log.error("Failed to load prompt configurations", e);
+            // 设置空的默认值，避免系统启动失败
+            initDefaultPrompts();
+        }
+    }
+    
+    /**
+     * 加载prompt并设置默认值
+     */
+    private Map<String, String> loadPromptWithDefault(String promptPath) {
+        try {
+            Map<String, String> promptMap = promptLoader.loadPromptMap(promptPath);
+            if (promptMap.isEmpty()) {
+                String content = promptLoader.loadPrompt(promptPath);
+                if (!content.isEmpty()) {
+                    Map<String, String> result = new HashMap<>();
+                    result.put("default", content);
+                    return result;
+                }
+            }
+            return promptMap;
+        } catch (Exception e) {
+            log.warn("Failed to load prompt: {}", promptPath, e);
+            return new HashMap<>();
+        }
+    }
+    
+    /**
+     * 初始化默认的空prompt配置
+     */
+    private void initDefaultPrompts() {
+        plannerSystemPromptMap = new HashMap<>();
+        plannerNextStepPromptMap = new HashMap<>();
+        executorSystemPromptMap = new HashMap<>(); 
+        executorNextStepPromptMap = new HashMap<>();
+        executorSopPromptMap = new HashMap<>();
+        reactSystemPromptMap = new HashMap<>();
+        reactNextStepPromptMap = new HashMap<>();
+        genieSopPrompt = "";
+        genieBasePrompt = "";
+        log.warn("Using default empty prompt configurations due to loading failure");
+    }
 
     @Value("${autobots.autoagent.tool.task_complete_desc:当前task完成，请将当前task标记为 completed}")
     private String taskCompleteDesc;

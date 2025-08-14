@@ -6,10 +6,8 @@ RAGFlow HTTP客户端
 import httpx
 import json
 from typing import Dict, List, Optional, Any
-from genie_tool.util.log_util import setup_logger
+from loguru import logger
 import os
-
-logger = setup_logger(__name__)
 
 
 class RAGFlowClient:

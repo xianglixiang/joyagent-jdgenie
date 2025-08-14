@@ -6,10 +6,8 @@
 from typing import Dict, List, Optional, Any
 from genie_tool.api.ragflow_client import RAGFlowClient
 from genie_tool.model.ragflow_models import Dataset, Document, Chunk, SearchResult, RAGFlowResponse
-from genie_tool.util.log_util import setup_logger
+from loguru import logger
 import os
-
-logger = setup_logger(__name__)
 
 
 class KnowledgeService:

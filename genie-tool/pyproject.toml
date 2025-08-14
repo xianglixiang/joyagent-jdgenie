@@ -10,6 +10,7 @@ dependencies = [
     "beautifulsoup4>=4.13.4",
     "fastapi>=0.115.14",
     "greenlet>=3.2.3",
+    "httpx>=0.25.0",
     "json-repair>=0.47.6",
     "litellm>=1.74.0.post1",
     "loguru>=0.7.3",

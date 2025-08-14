@@ -7,10 +7,8 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 from genie_tool.services.knowledge_service import KnowledgeService
-from genie_tool.util.log_util import setup_logger
+from loguru import logger
 import os
-
-logger = setup_logger(__name__)
 
 router = APIRouter(prefix="/knowledge", tags=["knowledge"])
 

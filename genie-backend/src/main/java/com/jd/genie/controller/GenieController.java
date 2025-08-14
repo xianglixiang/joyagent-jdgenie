@@ -11,6 +11,7 @@ import com.jd.genie.agent.tool.common.CodeInterpreterTool;
 import com.jd.genie.agent.tool.common.DeepSearchTool;
 import com.jd.genie.agent.tool.common.FileTool;
 import com.jd.genie.agent.tool.common.ReportTool;
+import com.jd.genie.agent.tool.common.RAGFlowTool;
 import com.jd.genie.agent.tool.mcp.McpTool;
 import com.jd.genie.agent.util.DateUtil;
 import com.jd.genie.agent.util.ThreadUtil;
@@ -189,7 +190,7 @@ public class GenieController {
 
         // default tool
         List<String> agentToolList = Arrays.asList(genieConfig.getMultiAgentToolListMap()
-                .getOrDefault("default", "search,code,report").split(","));
+                .getOrDefault("default", "search,code,report,ragflow").split(","));
         if (!agentToolList.isEmpty()) {
             if (agentToolList.contains("code")) {
                 CodeInterpreterTool codeTool = new CodeInterpreterTool();
@@ -205,6 +206,12 @@ public class GenieController {
                 DeepSearchTool deepSearchTool = new DeepSearchTool();
                 deepSearchTool.setAgentContext(agentContext);
                 toolCollection.addTool(deepSearchTool);
+            }
+            if (agentToolList.contains("ragflow")) {
+                RAGFlowTool ragflowTool = new RAGFlowTool();
+                ragflowTool.setAgentContext(agentContext);
+                ragflowTool.setGenieConfig(genieConfig);
+                toolCollection.addTool(ragflowTool);
             }
         }
 

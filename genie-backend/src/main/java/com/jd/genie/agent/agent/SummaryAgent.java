@@ -49,7 +49,7 @@ public class SummaryAgent extends BaseAgent {
     private String createFileInfo() {
         List<File> files = context.getProductFiles();
         if (CollectionUtils.isEmpty(files)) {
-            log.info("requestId: {} no files found in context", requestId);
+            log.warn("requestId: {} no files found in context - this may indicate tool execution failure", requestId);
             return "";
         }
         log.info("requestId: {} {} product files:{}", requestId, logFlag, files);
@@ -88,26 +88,40 @@ public class SummaryAgent extends BaseAgent {
     private TaskSummaryResult parseLlmResponse(String llmResponse) {
         if (StringUtils.isEmpty(llmResponse)) {
             log.error("requestId: {} pattern matcher failed for response is null", requestId);
+            return TaskSummaryResult.builder()
+                    .taskSummary("任务执行失败：无法获取有效的分析结果，请检查任务执行日志或重新尝试。")
+                    .build();
         }
 
         String[] parts1 = llmResponse.split("\\$\\$\\$");
         if (parts1.length < 2) {
-            return TaskSummaryResult.builder().taskSummary(parts1[0]).build();
+            // 没有文件部分，直接返回摘要
+            String summary = parts1[0];
+            log.info("requestId: {} No file references found in response, returning summary only", requestId);
+            return TaskSummaryResult.builder().taskSummary(summary).build();
         }
 
         String summary = parts1[0];
         String fileNames = parts1[1];
 
         List<File> files = context.getProductFiles();
-        if (!CollectionUtils.isEmpty(files)) {
-            Collections.reverse(files);
-        } else {
-            log.error("requestId: {} llmResponse:{} productFile list is empty", requestId, llmResponse);
-            // 文件列表为空，交付物中不显示文件
-            return TaskSummaryResult.builder().taskSummary(summary).build();
+        if (CollectionUtils.isEmpty(files)) {
+            log.error("requestId: {} llmResponse:{} productFile list is empty - task execution may have failed", requestId, llmResponse);
+            
+            // 提供更详细的错误信息
+            String enhancedSummary = summary + "\n\n注意：未找到任何分析结果文件，这可能是由于：\n" +
+                    "1. 搜索工具未能获取到有效数据\n" +
+                    "2. 报告生成工具执行失败\n" +
+                    "3. 网络连接问题导致外部服务不可用\n" +
+                    "建议检查系统日志并重新尝试任务。";
+            
+            return TaskSummaryResult.builder().taskSummary(enhancedSummary).build();
         }
+        
+        Collections.reverse(files);
         List<File> product = new ArrayList<>();
         String[] items = fileNames.split("、");
+        
         for (String item : items) {
             String trimmedItem = item.trim();
             if (StringUtils.isBlank(trimmedItem)) {

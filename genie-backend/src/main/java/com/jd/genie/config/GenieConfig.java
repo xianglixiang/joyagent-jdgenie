@@ -288,6 +288,19 @@ public class GenieConfig {
     @Value("${autobots.autoagent.default_model_name:gpt-4.1}")
     private String defaultModelName;
 
+    // RAGFlow配置
+    @Value("${autobots.autoagent.ragflow.base_url:http://127.0.0.1:9380}")
+    private String ragflowBaseUrl;
+
+    @Value("${autobots.autoagent.ragflow.api_key:}")
+    private String ragflowApiKey;
+
+    @Value("${autobots.autoagent.ragflow.timeout:30}")
+    private Integer ragflowTimeout;
+
+    @Value("${autobots.autoagent.ragflow.retry_attempts:3}")
+    private Integer ragflowRetryAttempts;
+
     // 动态模型切换支持
     private volatile String currentModelName;
 

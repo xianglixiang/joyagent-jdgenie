@@ -14,18 +14,7 @@ const ROUTES = {
 // 使用 React.lazy 懒加载组件
 const Home = React.lazy(() => import('@/pages/Home'));
 const NotFound = React.lazy(() => import('@/components/NotFound'));
-
-// 创建知识库页面的占位组件
-const Knowledge = React.lazy(() => Promise.resolve({ 
-  default: () => (
-    <div className="h-full flex items-center justify-center">
-      <div className="text-center">
-        <h2 className="text-24 font-bold mb-8">知识库</h2>
-        <p className="text-gray-500">功能正在开发中...</p>
-      </div>
-    </div>
-  )
-}));
+const Knowledge = React.lazy(() => import('@/pages/Knowledge'));
 
 // 创建路由配置
 const router = createBrowserRouter([

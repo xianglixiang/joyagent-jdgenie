@@ -94,6 +94,11 @@ autobots:
     deep_search_url: "http://127.0.0.1:1601"
     mcp_client_url: "http://127.0.0.1:8188"
     mcp_server_url: ""
+    ragflow:
+      base_url: "http://127.0.0.1:9380"
+      api_key: ""
+      timeout: 30
+      retry_attempts: 3
     summary:
       system_prompt: ""
       message_size_limit: 1000

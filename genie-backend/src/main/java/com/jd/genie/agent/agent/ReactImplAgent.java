@@ -86,6 +86,9 @@ public class ReactImplAgent extends ReActAgent {
         try {
             // 获取带工具选项的响应
             context.setStreamMessageType("tool_thought");
+            
+            log.info("{} ReactImplAgent think - available tools: {}", context.getRequestId(), 
+                    availableTools.getToolMap().keySet());
 
             CompletableFuture<LLM.ToolCallResponse> future = getLlm().askTool(
                     context,
@@ -96,13 +99,30 @@ public class ReactImplAgent extends ReActAgent {
             );
 
             LLM.ToolCallResponse response = future.get();
+            
+            log.info("{} ReactImplAgent think - LLM response content: {}", context.getRequestId(), 
+                    response.getContent());
+            log.info("{} ReactImplAgent think - Tool calls count: {}", context.getRequestId(), 
+                    response.getToolCalls() != null ? response.getToolCalls().size() : 0);
 
             setToolCalls(response.getToolCalls());
 
             // 记录响应信息
             if (!context.getIsStream() && response.getContent() != null && !response.getContent().isEmpty()) {
                 printer.send("tool_thought", response.getContent());
+            }
 
+            // 如果没有工具调用但内容表明任务完成，则继续执行
+            if ((response.getToolCalls() == null || response.getToolCalls().isEmpty()) && 
+                response.getContent() != null && !response.getContent().isEmpty()) {
+                log.info("{} No tool calls generated, checking if task is complete", context.getRequestId());
+                
+                // 检查是否是完成状态
+                String content = response.getContent().toLowerCase();
+                if (content.contains("完成") || content.contains("结束") || content.contains("finish")) {
+                    setState(AgentState.FINISHED);
+                    log.info("{} Task marked as finished based on response content", context.getRequestId());
+                }
             }
 
             // 创建并添加助手消息
@@ -112,7 +132,6 @@ public class ReactImplAgent extends ReActAgent {
             getMemory().addMessage(assistantMsg);
 
         } catch (Exception e) {
-
             log.error("{} react think error", context.getRequestId(), e);
             getMemory().addMessage(Message.assistantMessage(
                     "Error encountered while processing: " + e.getMessage(), null));
@@ -126,26 +145,34 @@ public class ReactImplAgent extends ReActAgent {
     @Override
     public String act() {
 
-        if (toolCalls.isEmpty()) {
+        if (toolCalls == null || toolCalls.isEmpty()) {
+            log.info("{} No tool calls to execute, finishing task", context.getRequestId());
             setState(AgentState.FINISHED);
             return getMemory().getLastMessage().getContent();
         }
 
+        log.info("{} Executing {} tool calls", context.getRequestId(), toolCalls.size());
+        
         // action
         Map<String, String> toolResults = executeTools(toolCalls);
         List<String> results = new ArrayList<>();
+        
         for (ToolCall command : toolCalls) {
+            String toolName = command.getFunction().getName();
             String result = toolResults.get(command.getId());
-            if (!Arrays.asList("code_interpreter", "report_tool", "file_tool", "deep_search").contains(command.getFunction().getName())) {
-                String toolName = command.getFunction().getName();
+            
+            log.info("{} Tool {} executed with result length: {}", context.getRequestId(), 
+                    toolName, result != null ? result.length() : 0);
+            
+            if (!Arrays.asList("code_interpreter", "report_tool", "file_tool", "deep_search").contains(toolName)) {
                 printer.send("tool_result", AgentResponse.ToolResult.builder()
                         .toolName(toolName)
-                        .toolParam(JSON.parseObject(command.getFunction().getArguments(), Map.class))
+                        .toolParam((Map<String, Object>) JSON.parseObject(command.getFunction().getArguments(), Map.class))
                         .toolResult(result)
                         .build(), null);
             }
 
-            if (maxObserve != null) {
+            if (maxObserve != null && result != null) {
                 result = result.substring(0, Math.min(result.length(), maxObserve));
             }
 
@@ -155,16 +182,22 @@ public class ReactImplAgent extends ReActAgent {
                 getMemory().getLastMessage().setContent(content + "\n 工具执行结果为:\n" + result);
             } else { // function_call
                 Message toolMsg = Message.toolMessage(
-                        result,
+                        result != null ? result : "Tool execution failed",
                         command.getId(),
                         null
                 );
                 getMemory().addMessage(toolMsg);
             }
-            results.add(result);
+            
+            if (result != null) {
+                results.add(result);
+            }
         }
 
-        return String.join("\n\n", results);
+        log.info("{} Tool execution completed, product files count: {}", context.getRequestId(), 
+                context.getProductFiles().size());
+
+        return results.isEmpty() ? "Tool execution completed" : String.join("\n\n", results);
     }
 
     @Override

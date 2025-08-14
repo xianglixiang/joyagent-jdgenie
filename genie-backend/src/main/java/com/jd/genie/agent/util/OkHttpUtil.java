@@ -104,6 +104,95 @@ public class OkHttpUtil {
     }
 
     /**
+     * 发送 GET 请求
+     *
+     * @param url     请求的 URL
+     * @param headers 请求头
+     * @return 请求结果
+     * @throws IOException 网络请求异常
+     */
+    public static String get(String url, Map<String, String> headers) throws IOException {
+        OkHttpClient client = createClient(30, 30, 30);
+        Request.Builder requestBuilder = new Request.Builder().url(url);
+        
+        if (headers != null) {
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                requestBuilder.addHeader(entry.getKey(), entry.getValue());
+            }
+        }
+        
+        Request request = requestBuilder.build();
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body().string();
+            }
+            throw new IOException("GET request failed with status code: " + response.code());
+        }
+    }
+
+    /**
+     * 发送 POST 请求
+     *
+     * @param url     请求的 URL
+     * @param json    JSON 参数
+     * @param headers 请求头
+     * @return 请求结果
+     * @throws IOException 网络请求异常
+     */
+    public static String post(String url, String json, Map<String, String> headers) throws IOException {
+        OkHttpClient client = createClient(30, 30, 30);
+        RequestBody body = RequestBody.create(json, JSON);
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(url)
+                .post(body);
+        
+        if (headers != null) {
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                requestBuilder.addHeader(entry.getKey(), entry.getValue());
+            }
+        }
+        
+        Request request = requestBuilder.build();
+        try (Response response = client.newCall(request).execute()) {
+            if (response.body() != null) {
+                return response.body().string();
+            }
+            throw new IOException("POST request failed with status code: " + response.code());
+        }
+    }
+
+    /**
+     * 发送 DELETE 请求
+     *
+     * @param url     请求的 URL
+     * @param json    JSON 参数
+     * @param headers 请求头
+     * @return 请求结果
+     * @throws IOException 网络请求异常
+     */
+    public static String delete(String url, String json, Map<String, String> headers) throws IOException {
+        OkHttpClient client = createClient(30, 30, 30);
+        RequestBody body = RequestBody.create(json, JSON);
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(url)
+                .delete(body);
+        
+        if (headers != null) {
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                requestBuilder.addHeader(entry.getKey(), entry.getValue());
+            }
+        }
+        
+        Request request = requestBuilder.build();
+        try (Response response = client.newCall(request).execute()) {
+            if (response.body() != null) {
+                return response.body().string();
+            }
+            throw new IOException("DELETE request failed with status code: " + response.code());
+        }
+    }
+
+    /**
      * SSE 事件监听器接口
      */
     public interface SseEventListener {

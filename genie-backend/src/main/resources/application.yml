@@ -13,11 +13,11 @@ llm:
     base_url: 'https://open.bigmodel.cn/api/paas/v4'
     apikey: '20004719e8824817a3af015b0f278769.V1frXpYckWEz8VMa'
     interface_url: '/chat/completions'
-    model: glm-4
+    model: glm-4.5-flash
     max_tokens: 8192
   settings: '{
-      "glm-4": {
-        "model": "glm-4",
+      "glm-4-flash": {
+        "model": "glm-4.5-flash",
         "max_tokens": 8192,
         "temperature": 0,
         "base_url": "https://open.bigmodel.cn/api/paas/v4/",
@@ -28,18 +28,23 @@ llm:
 
 autobots:
   autoagent:
+    ragflow:
+      base_url: https://demo.ragflow.io
+      api_Key: ragflow-FkMjJlMDUyNzY3MDExZjA5ODM5NDIwMT
+      timeout: 30
+      retry_attempts: 3
     planner:
       max_steps: 10
-      model_name: glm-4
+      model_name: glm-4.5-flash
       pre_prompt: 一步一步（step by step）思考，结合用户上传的文件分析用户问题，并根据问题制定计划，用户问题如下：
       close_update: 1
     executor:
       max_steps: 10
-      model_name: glm-4
+      model_name: glm-4.5-flash
       max_observe: 10000
     react:
       max_steps: 10
-      model_name: glm-4
+      model_name: glm-4.5-flash
     tool:
       plan_tool:
         desc: "这是一个计划工具，可让代理创建和管理用于解决复杂任务的计划。\n该工具提供创建计划、更新计划步骤和跟踪进度的功能。\n\n创建计划时，需要创建出有依赖关系的计划，计划列表格式如下：\n[\n 执行顺序+编号、任务短标题：任务的细节描述\n]，样式示例如下：[\"执行顺序1. 任务短标题: 任务描述xxx ...\", \"执行顺序1. 任务短标题: 任务描述xxx ...\", \"执行顺序2. 任务短标题：任务描述xxx ...\" , \"执行顺序3. 任务短标题：任务描述xxx ... \"]"
@@ -94,11 +99,6 @@ autobots:
     deep_search_url: "http://127.0.0.1:1601"
     mcp_client_url: "http://127.0.0.1:8188"
     mcp_server_url: ""
-    ragflow:
-      base_url: "http://127.0.0.1:9380"
-      api_key: ""
-      timeout: 30
-      retry_attempts: 3
     summary:
       system_prompt: ""
       message_size_limit: 1000
@@ -107,7 +107,7 @@ autobots:
     output_style_prompts: '{}'
     message_interval: '{}'
     struct_parse_tool_system_prompt: ""
-    default_model_name: glm-4
+    default_model_name: glm-4.5-flash
 
   multiagent:
     sseClient:

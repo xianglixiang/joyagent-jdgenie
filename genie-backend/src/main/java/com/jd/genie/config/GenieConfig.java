@@ -292,7 +292,7 @@ public class GenieConfig {
     @Value("${autobots.autoagent.ragflow.base_url:http://127.0.0.1:9380}")
     private String ragflowBaseUrl;
 
-    @Value("${autobots.autoagent.ragflow.api_key:}")
+    @Value("${autobots.autoagent.ragflow.api_key:${autobots.autoagent.ragflow.api_Key:#{null}}}")
     private String ragflowApiKey;
 
     @Value("${autobots.autoagent.ragflow.timeout:30}")

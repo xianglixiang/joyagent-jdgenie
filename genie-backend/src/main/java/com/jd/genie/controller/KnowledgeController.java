@@ -251,6 +251,34 @@ public class KnowledgeController {
     }
 
     /**
+     * 验证RAGFlow配置
+     */
+    @PostMapping("/tools/validate-config")
+    public ResponseEntity<Map<String, Object>> validateConfig() {
+        try {
+            // 检查配置是否完整
+            boolean configValid = genieConfig.getRagflowApiKey() != null && 
+                                !genieConfig.getRagflowApiKey().isEmpty() &&
+                                genieConfig.getRagflowBaseUrl() != null &&
+                                !genieConfig.getRagflowBaseUrl().isEmpty();
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", configValid);
+            result.put("message", configValid ? "RAGFlow配置有效" : "RAGFlow配置无效，请检查API密钥和基础URL");
+            result.put("data", Map.of("config_valid", configValid));
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("验证RAGFlow配置失败", e);
+            Map<String, Object> errorResult = new HashMap<>();
+            errorResult.put("success", false);
+            errorResult.put("message", "验证RAGFlow配置失败: " + e.getMessage());
+            errorResult.put("data", Map.of("config_valid", false));
+            return ResponseEntity.internalServerError().body(errorResult);
+        }
+    }
+
+    /**
      * 批量操作接口
      */
     @PostMapping("/batch")

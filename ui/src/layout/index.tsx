@@ -2,7 +2,7 @@ import { memo, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { ConfigProvider, message } from 'antd';
 import { ConstantProvider, SessionProvider } from '@/hooks';
-import { Sidebar, LLMSelector } from '@/components';
+import { Sidebar, LLMSelector, UserMenu } from '@/components';
 import * as constants from "@/utils/constants";
 import { setMessage } from '@/utils';
 
@@ -33,9 +33,9 @@ const Layout: GenieType.FC = memo(() => {
                   <LLMSelector />
                 </div>
                 
-                {/* Right side - can add more header content here */}
+                {/* Right side - User Menu */}
                 <div className="flex items-center">
-                  {/* Future: user menu, settings, etc. */}
+                  <UserMenu />
                 </div>
               </header>
               

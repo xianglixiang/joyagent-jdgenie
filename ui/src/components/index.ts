@@ -16,6 +16,8 @@ export { default as AttachmentList } from './AttachmentList';
 
 export { default as LLMSelector } from './LLMSelector';
 
+export { default as UserMenu } from './UserMenu';
+
 export { GeneralInput, LoadingDot, Logo };
 
 export { default as Loading } from './ActionPanel/Loading';

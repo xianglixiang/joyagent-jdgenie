@@ -1,0 +1,177 @@
+/* 用户菜单触发器样式 */
+.user-menu-trigger {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.user-menu-trigger:hover {
+  background: rgba(24, 144, 255, 0.08);
+  border-color: #1890ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.15);
+}
+
+.user-greeting .greeting-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 下拉菜单样式 */
+.user-dropdown-menu {
+  min-width: 280px !important;
+  padding: 8px 0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* 用户信息头部 */
+.user-menu-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin: -8px -12px 8px -12px;
+  border-radius: 12px 12px 0 0;
+  color: white;
+}
+
+.user-avatar-large {
+  margin-right: 12px;
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  margin-bottom: 4px;
+}
+
+.user-name .ant-typography {
+  color: white !important;
+  font-size: 16px;
+  margin: 0;
+}
+
+.user-role {
+  margin-bottom: 4px;
+}
+
+.user-role .role-text {
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-size: 12px;
+}
+
+.user-role .anticon {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.user-email .email-text {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  max-width: 180px;
+}
+
+/* 配额信息样式 */
+.quota-info {
+  padding: 8px 20px;
+  background: rgba(24, 144, 255, 0.04);
+  margin: 0 -12px;
+  border-left: 3px solid #1890ff;
+}
+
+.quota-info .ant-typography {
+  font-size: 12px;
+}
+
+/* 菜单项样式优化 */
+.user-dropdown-menu .ant-dropdown-menu-item {
+  padding: 12px 20px !important;
+  border-radius: 6px !important;
+  margin: 2px 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.user-dropdown-menu .ant-dropdown-menu-item:hover {
+  background: rgba(24, 144, 255, 0.08) !important;
+  transform: translateX(4px) !important;
+}
+
+.user-dropdown-menu .ant-dropdown-menu-item .anticon {
+  font-size: 14px;
+  margin-right: 8px;
+  width: 16px;
+  text-align: center;
+}
+
+/* 分割线样式 */
+.user-dropdown-menu .ant-dropdown-menu-item-divider {
+  margin: 8px 12px !important;
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* 禁用状态的菜单项 */
+.user-dropdown-menu .ant-dropdown-menu-item-disabled {
+  cursor: default !important;
+  color: inherit !important;
+}
+
+.user-dropdown-menu .ant-dropdown-menu-item-disabled:hover {
+  background: transparent !important;
+  transform: none !important;
+}
+
+/* 退出登录特殊样式 */
+.user-dropdown-menu .ant-dropdown-menu-item[data-menu-id*="logout"]:hover {
+  background: rgba(255, 77, 79, 0.08) !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .user-greeting {
+    display: none;
+  }
+  
+  .user-dropdown-menu {
+    min-width: 260px !important;
+  }
+  
+  .user-menu-header {
+    padding: 12px 16px;
+  }
+  
+  .user-dropdown-menu .ant-dropdown-menu-item {
+    padding: 10px 16px !important;
+  }
+}
+
+/* 暗色主题适配 */
+.user-menu-trigger.dark {
+  background: rgba(0, 0, 0, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.user-menu-trigger.dark:hover {
+  background: rgba(24, 144, 255, 0.2);
+}
+
+.user-menu-trigger.dark .greeting-text {
+  color: #ffffff;
+}

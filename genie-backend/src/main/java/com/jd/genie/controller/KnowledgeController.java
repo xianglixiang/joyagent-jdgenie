@@ -21,7 +21,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/api/knowledge")
-public class KnowledgeController {
+public class KnowledgeController extends BaseController {
 
     @Autowired
     private GenieConfig genieConfig;
